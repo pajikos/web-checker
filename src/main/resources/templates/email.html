@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title th:remove="all">Template for HTML email with inline image</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<p>
+		Nová nemovitost na <a href="example.com" th:href="${searchUrl}"><span th:text="${name}">seznam.cz</span></a>!
+	</p>
+	<table style="margin-top: 10px" th:each="result : ${results}" border="1">
+		<tr>
+			<td>Předmět:</td>
+			<td th:text="${result.title + ', ' + result.price}">Title Example</td>
+		</tr>
+		<tr>
+			<td>Popis:</td>
+			<td th:text="${result.description}">Description Example</td>
+		</tr>
+		<tr>
+			<td>URL:</td>
+			<td th:text="${result.url}">Url Example</td>
+		</tr>
+		<tr>
+			<td colspan="2"><img src="image.png" th:src="${result.imageUrl}" /></td>
+		</tr>
+	</table>
+	<p>
+		<!-- 		<img src="sample.png" th:src="'cid:' + ${imageResourceName}" /> -->
+	</p>
+	<p>
+		Tento e-mail byl automaticky vygenerován v <span
+			th:text="${#dates.format(subscriptionDate)}">28-12-2012</span>
+	</p>
+	<p>
+		S pozdravem, <br /> &emsp; <em>Web Checker</em>
+	</p>
+</body>
+</html>
