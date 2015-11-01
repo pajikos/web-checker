@@ -5,7 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,7 @@ import com.pavelsklenar.service.SearchPageProcessor;
 import com.pavelsklenar.service.SearchRepoService;
 import com.pavelsklenar.service.SearchResultProcessor;
 
-@ConditionalOnProperty("run.job.webChecker")
+@ConditionalOnProperty(prefix = "job.webChecker", name = { "run", "cron" })
 @Component
 public class WebCheckerJobImpl {
 
@@ -32,10 +31,11 @@ public class WebCheckerJobImpl {
 
 	@Autowired
 	private EmailService emailService;
-	
-	private static final Logger LOG = LoggerFactory.getLogger(WebCheckerJobImpl.class);
 
-	@Scheduled(fixedRate = 300000)
+	private static final Logger LOG = LoggerFactory
+			.getLogger(WebCheckerJobImpl.class);
+
+	@Scheduled(cron = "${job.webChecker.cron}")
 	public void run() {
 
 		List<SearchPage> allSearchPages = searchRepoService.getAllSearchPages();
@@ -48,7 +48,8 @@ public class WebCheckerJobImpl {
 				emailService.sendMails(onlyNewSearchResults);
 				searchRepoService.saveAllSearchResults(onlyNewSearchResults);
 			} catch (Exception e) {
-				LOG.error("Cannot process page " + searchPage.getUrl() + " due to the error " + e.getLocalizedMessage(), e);
+				LOG.error("Cannot process page " + searchPage.getUrl()
+						+ " due to the error " + e.getLocalizedMessage(), e);
 			}
 		}
 

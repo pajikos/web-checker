@@ -1,7 +1,6 @@
 package com.pavelsklenar.service.impl;
 
 import java.io.InputStream;
-import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -24,13 +23,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.pavelsklenar.DemoApplication;
 import com.pavelsklenar.domain.SearchPage;
-import com.pavelsklenar.domain.SearchResult;
-import com.pavelsklenar.service.EmailService;
 import com.pavelsklenar.service.SearchPageRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DemoApplication.class)
-@TestPropertySource(properties = { "run.job.webChecker:true" })
+@TestPropertySource(properties = { "job.webChecker.run:true",
+"job.webChecker.cron=* */1 * * * *" })
 public class WebCheckerJobImplTest {
 
 	@Autowired
