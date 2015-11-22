@@ -2,6 +2,8 @@ package com.pavelsklenar.service.impl;
 
 import java.util.List;
 
+import javax.mail.MessagingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,11 @@ import com.pavelsklenar.service.SearchPageProcessor;
 import com.pavelsklenar.service.SearchRepoService;
 import com.pavelsklenar.service.SearchResultProcessor;
 
+/**
+ * The main job for start a checking of web sites
+ * @author pajik
+ *
+ */
 @ConditionalOnProperty(prefix = "job.webChecker", name = { "run", "cron" })
 @Component
 public class WebCheckerJobImpl {
@@ -36,7 +43,7 @@ public class WebCheckerJobImpl {
 			.getLogger(WebCheckerJobImpl.class);
 
 	@Scheduled(cron = "${job.webChecker.cron}")
-	public void run() {
+	public void run() throws MessagingException {
 
 		List<SearchPage> allSearchPages = searchRepoService.getAllSearchPages();
 		for (SearchPage searchPage : allSearchPages) {
@@ -45,11 +52,12 @@ public class WebCheckerJobImpl {
 						.processSearch(searchPage);
 				List<SearchResult> onlyNewSearchResults = searchResultProcessor
 						.processCompare(allSearchResults);
-				emailService.sendMails(onlyNewSearchResults);
+				emailService.sendSearchResults(onlyNewSearchResults);
 				searchRepoService.saveAllSearchResults(onlyNewSearchResults);
 			} catch (Exception e) {
 				LOG.error("Cannot process page " + searchPage.getUrl()
 						+ " due to the error " + e.getLocalizedMessage(), e);
+				emailService.sendExcetionByEmail(e);
 			}
 		}
 

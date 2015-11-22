@@ -33,7 +33,7 @@ public class EmailServiceImplTest {
 		List<SearchResult> listToSend = new ArrayList<SearchResult>();
 		listToSend.add(createTestSearchResult());
 		listToSend.add(createTestSearchResult());
-		emailService.sendMails(listToSend);
+		emailService.sendSearchResults(listToSend);
 	}
 
 	private SearchResult createTestSearchResult() {

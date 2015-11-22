@@ -6,12 +6,15 @@
 </head>
 <body>
 	<p>
-		Nová nemovitost na <a href="example.com" th:href="${searchUrl}"><span th:text="${name}">seznam.cz</span></a>!
+		Nová nemovitost na <a href="example.com" th:href="${searchUrl}"><span
+			th:text="${name}">seznam.cz</span></a>!
 	</p>
-	<table style="margin-top: 10px" th:each="result : ${results}" border="1">
+	<table style="margin-top: 10px" th:each="result : ${results}"
+		border="1">
 		<tr>
 			<td>Předmět:</td>
-			<td th:text="${result.title + ', ' + result.price}">Title Example</td>
+			<td th:text="${result.title + ', ' + result.price}">Title
+				Example</td>
 		</tr>
 		<tr>
 			<td>Popis:</td>
@@ -29,11 +32,11 @@
 		<!-- 		<img src="sample.png" th:src="'cid:' + ${imageResourceName}" /> -->
 	</p>
 	<p>
-		Tento e-mail byl automaticky vygenerován v <span
+		Automatically generated at <span
 			th:text="${#dates.format(subscriptionDate)}">28-12-2012</span>
 	</p>
 	<p>
-		S pozdravem, <br /> &emsp; <em>Web Checker</em>
+		Regards, <br /> &emsp; <em>Web Checker</em>
 	</p>
 </body>
 </html>

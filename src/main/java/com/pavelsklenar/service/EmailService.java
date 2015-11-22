@@ -8,6 +8,8 @@ import com.pavelsklenar.domain.SearchResult;
 
 public interface EmailService {
 
-	public abstract void sendMails(List<SearchResult> listToSend) throws MessagingException;
+	void sendSearchResults(List<SearchResult> listToSend) throws MessagingException;
+
+	void sendExcetionByEmail(Exception exception) throws MessagingException;
 
 }
