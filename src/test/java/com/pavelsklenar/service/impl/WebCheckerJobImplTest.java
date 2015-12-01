@@ -7,14 +7,18 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,11 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -36,7 +35,9 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.pavelsklenar.DemoApplication;
 import com.pavelsklenar.domain.EmailAddress;
 import com.pavelsklenar.domain.SearchPage;
+import com.pavelsklenar.domain.SearchResult;
 import com.pavelsklenar.service.EmailAddressRepository;
+import com.pavelsklenar.service.EmailService;
 import com.pavelsklenar.service.SearchPageRepository;
 
 /**
@@ -48,8 +49,6 @@ import com.pavelsklenar.service.SearchPageRepository;
 		"job.webChecker.cron=* */1 * * * *" })
 public class WebCheckerJobImplTest {
 
-	private static final String RESULT_MAIL_TO = "email@xyz.com";
-
 	@Autowired
 	private WebCheckerJobImpl webCheckerJob;
 
@@ -59,8 +58,7 @@ public class WebCheckerJobImplTest {
 	@Autowired
 	private EmailAddressRepository emailAddressRepository;
 
-	@Autowired
-	private EmailServiceImpl emailService;
+	private static final String RESULT_MAIL_TO = "email@xyz.com";
 
 	@Rule
 	public WireMockRule wireMockRule = new WireMockRule(8089);
@@ -68,14 +66,16 @@ public class WebCheckerJobImplTest {
 	// In miliseconds
 	private static final int maxTimeToWaitForJob = 30000;
 
-	private MyJavaMailSender myJavaMailSender;
+	private EmailService emailService;
+	
+	private static final Logger LOG = LoggerFactory.getLogger(WebCheckerJobImplTest.class);
 
 	@Before
 	public void setup() throws Exception {
 		SearchPage createdSearchPage = createSearchPage();
-		myJavaMailSender = new MyJavaMailSender();
-		emailService.setMailSender(myJavaMailSender);
 		createHttpStub(createdSearchPage);
+		emailService = EasyMock.createMock(EmailService.class);
+		webCheckerJob.setEmailService(emailService);
 	}
 
 	/**
@@ -83,33 +83,68 @@ public class WebCheckerJobImplTest {
 	 * page and send an email with results<br />
 	 * Remote web page is simulated with mock and email service does not send
 	 * any real e-mail
-	 *
+	 * 
 	 * @throws InterruptedException
 	 * @throws MessagingException
 	 */
+//	@Test
+//	public void testFullJobRun() throws InterruptedException,
+//			MessagingException {
+//		int currentWaitingPeriod = 0;
+//		int stepInMiliseconds = 200;
+//		while (!emailService.isEmailSent()) {
+//			Thread.sleep(stepInMiliseconds);
+//			if (currentWaitingPeriod > maxTimeToWaitForJob) {
+//				Assert.fail("Max time to wait was elapsed.");
+//			} else {
+//				currentWaitingPeriod = currentWaitingPeriod + stepInMiliseconds;
+//			}
+//		}
+//
+//	}
+
 	@Test
-	public void testFullJobRun() throws InterruptedException,
-			MessagingException {
-		int currentWaitingPeriod = 0;
-		int stepInMiliseconds = 200;
-		while (!myJavaMailSender.isEmailSent()) {
-			Thread.sleep(stepInMiliseconds);
-			if (currentWaitingPeriod > maxTimeToWaitForJob) {
-				Assert.fail("Max time to wait was elapsed.");
-			} else {
-				currentWaitingPeriod = currentWaitingPeriod + stepInMiliseconds;
+	public void testFullJobRun2() throws MessagingException, InterruptedException {
+		final ReentrantLock lock = new ReentrantLock();
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				lock.lock();
+				LOG.info("Locked.");
 			}
+		}).start();
+		System.err.println("BBBBBBBBBBBBb" + lock.isLocked());
+		
+		Capture<SearchPage> capturedSearchPage = Capture.newInstance();
+		Capture<List<SearchResult>> capturedList = Capture.newInstance();
+		emailService.sendSearchResults(EasyMock.capture(capturedSearchPage),
+				EasyMock.capture(capturedList));
+
+		EasyMock.expectLastCall().andAnswer(new IAnswer<Void>() {
+			@Override
+			public Void answer() {
+				LOG.error("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+				lock.unlock();
+				return null;
+			}
+		});
+		System.err.println("GGGGGGGGGGGGGGGG" + lock.isLocked());
+		EasyMock.replay(emailService);
+		if (lock.tryLock(30, TimeUnit.SECONDS))  {
+			LOG.error("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
+			Assert.assertEquals(20, capturedList.getValue().size());
+		} else {
+			Assert.fail("No email was sent.");
 		}
-		MimeMessage lastMimeMessage = myJavaMailSender.getLastMimeMessage();
-		Assert.assertEquals(1,
-				lastMimeMessage.getRecipients(RecipientType.TO).length);
-		Assert.assertEquals(RESULT_MAIL_TO,
-				lastMimeMessage.getRecipients(RecipientType.TO)[0].toString());
+
+		EasyMock.verify(emailService);
+
 	}
 
 	/**
 	 * Create instance of {@link SearchPage} for testing purpose
-	 *
+	 * 
 	 * @return
 	 */
 	private SearchPage createSearchPage() {
@@ -136,73 +171,10 @@ public class WebCheckerJobImplTest {
 		return searchPage;
 	}
 
-	private class MyJavaMailSender implements JavaMailSender {
-		private boolean emailSent;
-		private MimeMessage lastMimeMessage;
-
-		public MimeMessage getLastMimeMessage() {
-			return lastMimeMessage;
-		}
-
-		private JavaMailSender mailSender = new JavaMailSenderImpl();
-		private final Logger LOG = LoggerFactory
-				.getLogger(MyJavaMailSender.class);
-
-		public void send(SimpleMailMessage arg0) throws MailException {
-			// TODO Auto-generated method stub
-
-		}
-
-		public void send(SimpleMailMessage... arg0) throws MailException {
-			// TODO Auto-generated method stub
-
-		}
-
-		public MimeMessage createMimeMessage() {
-			return mailSender.createMimeMessage();
-		}
-
-		public MimeMessage createMimeMessage(InputStream arg0)
-				throws MailException {
-			return mailSender.createMimeMessage(arg0);
-		}
-
-		public void send(MimeMessage arg0) throws MailException {
-			try {
-				LOG.info("Fake email sent with subject: {}", arg0.getSubject());
-				lastMimeMessage = arg0;
-			} catch (MessagingException e) {
-				throw new RuntimeException(e);
-			}
-			emailSent = true;
-
-		}
-
-		public void send(MimeMessage... arg0) throws MailException {
-			emailSent = true;
-
-		}
-
-		public void send(MimeMessagePreparator arg0) throws MailException {
-			// TODO Auto-generated method stub
-
-		}
-
-		public void send(MimeMessagePreparator... arg0) throws MailException {
-			// TODO Auto-generated method stub
-
-		}
-
-		public boolean isEmailSent() {
-			return emailSent;
-		}
-
-	}
-
 	/**
 	 * Create a HTTP server page which returns a specific page to a specific
 	 * request<br />
-	 *
+	 * 
 	 * @param searchPage
 	 * @throws Exception
 	 */
@@ -222,7 +194,7 @@ public class WebCheckerJobImplTest {
 
 	/**
 	 * Read content of file on classpath in to String
-	 *
+	 * 
 	 * @param file
 	 * @return
 	 * @throws Exception
@@ -245,4 +217,32 @@ public class WebCheckerJobImplTest {
 			}
 		}
 	}
+
+	private class MyEmailService implements EmailService {
+
+		boolean isEmailSent;
+		boolean isErrorEmailSent;
+
+		@Override
+		public void sendExcetionByEmail(Exception exception)
+				throws MessagingException {
+			this.isErrorEmailSent = true;
+		}
+
+		@Override
+		public void sendSearchResults(SearchPage searchPage,
+				List<SearchResult> listToSend) throws MessagingException {
+			this.isEmailSent = true;
+		}
+
+		public boolean isEmailSent() {
+			return isEmailSent;
+		}
+
+		public boolean isErrorEmailSent() {
+			return isErrorEmailSent;
+		}
+
+	}
+
 }

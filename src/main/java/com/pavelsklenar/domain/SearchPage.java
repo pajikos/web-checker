@@ -29,6 +29,13 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 
+/**
+ * This Entity stores info about search page, i.e. URL, xpaths to required
+ * elements etc.
+ * 
+ * @author pajik
+ * 
+ */
 @Entity
 public class SearchPage implements Serializable {
 
@@ -45,7 +52,7 @@ public class SearchPage implements Serializable {
 	@Column(nullable = false)
 	private String url;
 
-	@Column(nullable=false, columnDefinition="boolean default true")
+	@Column(nullable = false, columnDefinition = "boolean default true")
 	private boolean enabled = true;
 
 	@Column
@@ -66,18 +73,18 @@ public class SearchPage implements Serializable {
 	@Column
 	private String xpathToUrl;
 
-	@Column(nullable=false, columnDefinition="boolean default false")
+	@Column(nullable = false, columnDefinition = "boolean default false")
 	private boolean javascriptEnabled;
 
-	@ManyToMany(fetch=FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
 	private Collection<EmailAddress> emailAddresses;
 
 	/**
-	 * Comma separated list of classes which should be omitted from search result
+	 * Comma separated list of classes which should be omitted from search
+	 * result
 	 */
 	@Column
 	private String omitClassesInSearchResult;
-
 
 	protected SearchPage() {
 	}
@@ -179,10 +186,12 @@ public class SearchPage implements Serializable {
 
 	/**
 	 * Get parsed list of classes to be omit
+	 * 
 	 * @return
 	 */
 	public List<String> getOmitClassesInSearchResultAsList() {
-		if (omitClassesInSearchResult == null || omitClassesInSearchResult.isEmpty()) {
+		if (omitClassesInSearchResult == null
+				|| omitClassesInSearchResult.isEmpty()) {
 			return java.util.Collections.emptyList();
 		}
 		ArrayList<String> result = new ArrayList<String>();

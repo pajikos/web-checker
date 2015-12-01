@@ -12,6 +12,13 @@ import javax.persistence.ManyToOne;
 
 import org.springframework.data.annotation.CreatedDate;
 
+/**
+ * Entity to save info about search result, i.e. result from searching on
+ * {@link SearchPage}
+ * 
+ * @author pajik
+ * 
+ */
 @Entity
 public class SearchResult implements Serializable {
 
@@ -33,7 +40,7 @@ public class SearchResult implements Serializable {
 
 	@Column
 	private String title;
-	
+
 	@Lob
 	@Column
 	private String imageUrl;
