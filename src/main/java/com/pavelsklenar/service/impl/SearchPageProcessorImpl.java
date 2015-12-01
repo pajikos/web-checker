@@ -1,9 +1,6 @@
 package com.pavelsklenar.service.impl;
 
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +10,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.pavelsklenar.domain.SearchPage;
@@ -25,29 +23,42 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 	private static final Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(SearchPageProcessorImpl.class);
 
+	@Value("${httpProxy.url:''}")
+	private String httpProxyUrl;
+
+	@Value("${httpProxy.port:3128}")
+	private Integer httpProxyPort;
+
 	public SearchPageProcessorImpl() {
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.pavelsklenar.service.impl.SearchPageProcessor#process(com.pavelsklenar
 	 * .domain.SearchPage)
 	 */
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.pavelsklenar.service.impl.SearchPageProcessor#processSearch(com.
 	 * pavelsklenar.domain.SearchPage)
 	 */
 	public List<SearchResult> processSearch(SearchPage searchPageToProcess)
 			throws Exception {
-		WebDriver driver = new HtmlUnitDriver(
+		HtmlUnitDriver driver = new HtmlUnitDriver(
 				searchPageToProcess.isJavascriptEnabled());
+		if (httpProxyUrl != null && !httpProxyUrl.isEmpty()) {
+			ArrayList<String> proxyIgnore = new ArrayList<String>();
+			proxyIgnore.add("localhost");
+			driver.setHTTPProxy(httpProxyUrl, httpProxyPort, proxyIgnore);
+			LOG.info("Proxy {}:{} has been successfully configured.", httpProxyUrl, httpProxyPort);
+		}
+
 		return processInternal(searchPageToProcess, driver);
 	}
-	
+
 	protected List<SearchResult> processInternal(SearchPage searchPageToProcess, WebDriver driver) throws Exception {
 		List<SearchResult> result = new ArrayList<SearchResult>();
 		if (searchPageToProcess.isEnabled()) {
@@ -56,7 +67,7 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 				driver.get(siteBase.toString());
 //				Path path = Paths.get("D:/temp", searchPageToProcess.getName() + ".html");
 //				Files.createFile(path);
-//				Files.write(path, driver.getPageSource().getBytes());
+//				Files.write(path, driver.getPageSource().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 				LOG.debug("Page found {}", driver.getPageSource());
 				List<WebElement> searchResultsElements = driver.findElements(By
 						.xpath(searchPageToProcess.getXpathToListOfResults()));
@@ -140,7 +151,7 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 			return null;
 		}
 	}
-	
+
 	private String getAttributeIfExistsFromElement(WebElement webElement,
 			String xpathToElement, String attribute) {
 		if (webElement == null || attribute == null || xpathToElement == null) {

@@ -25,6 +25,11 @@ import org.springframework.data.repository.Repository;
 
 import com.pavelsklenar.domain.SearchPage;
 
+/**
+ * Interface for manipulation with {@link SearchPage}
+ * @author pavel.sklenar
+ *
+ */
 public interface SearchPageRepository extends Repository<SearchPage, Long>,
 		CrudRepository<SearchPage, Long> {
 

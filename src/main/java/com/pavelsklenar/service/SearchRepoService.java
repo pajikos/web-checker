@@ -24,6 +24,11 @@ import org.springframework.data.domain.Pageable;
 import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
 
+/**
+ * Interface for service which agregates some useful repositories
+ * @author pavel.sklenar
+ *
+ */
 public interface SearchRepoService {
 
 	SearchPage getSearchPage(String name);

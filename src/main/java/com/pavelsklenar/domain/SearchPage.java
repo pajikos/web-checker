@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -46,7 +47,7 @@ public class SearchPage implements Serializable {
 
 	@Column(nullable=false, columnDefinition="boolean default true")
 	private boolean enabled = true;
-	
+
 	@Column
 	private String xpathToListOfResults;
 
@@ -58,26 +59,26 @@ public class SearchPage implements Serializable {
 
 	@Column
 	private String xpathToTitle;
-	
+
 	@Column
 	private String xpathToPrice;
-	
+
 	@Column
 	private String xpathToUrl;
-	
+
 	@Column(nullable=false, columnDefinition="boolean default false")
 	private boolean javascriptEnabled;
-	
-	@ManyToMany
+
+	@ManyToMany(fetch=FetchType.EAGER)
 	private Collection<EmailAddress> emailAddresses;
-	
+
 	/**
-	 * Comma separated list of classes which should be omitted from search result 
+	 * Comma separated list of classes which should be omitted from search result
 	 */
 	@Column
 	private String omitClassesInSearchResult;
-	
-	
+
+
 	protected SearchPage() {
 	}
 
@@ -175,7 +176,7 @@ public class SearchPage implements Serializable {
 	public String getOmitClassesInSearchResult() {
 		return omitClassesInSearchResult;
 	}
-	
+
 	/**
 	 * Get parsed list of classes to be omit
 	 * @return
