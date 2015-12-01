@@ -1,6 +1,9 @@
 package com.pavelsklenar.service.impl;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,13 +43,20 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 	 */
 	public List<SearchResult> processSearch(SearchPage searchPageToProcess)
 			throws Exception {
+		WebDriver driver = new HtmlUnitDriver(
+				searchPageToProcess.isJavascriptEnabled());
+		return processInternal(searchPageToProcess, driver);
+	}
+	
+	protected List<SearchResult> processInternal(SearchPage searchPageToProcess, WebDriver driver) throws Exception {
 		List<SearchResult> result = new ArrayList<SearchResult>();
 		if (searchPageToProcess.isEnabled()) {
-			WebDriver driver = new HtmlUnitDriver(
-					searchPageToProcess.isJavascriptEnabled());
 			URI siteBase = new URI(searchPageToProcess.getUrl());
 			try {
 				driver.get(siteBase.toString());
+//				Path path = Paths.get("D:/temp", searchPageToProcess.getName() + ".html");
+//				Files.createFile(path);
+//				Files.write(path, driver.getPageSource().getBytes());
 				LOG.debug("Page found {}", driver.getPageSource());
 				List<WebElement> searchResultsElements = driver.findElements(By
 						.xpath(searchPageToProcess.getXpathToListOfResults()));
@@ -96,6 +106,7 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 		}
 		return result;
 	}
+
 
 	private boolean shouldBeOmitted(WebElement webElement,
 			List<String> omitClassesInSearchResult) {

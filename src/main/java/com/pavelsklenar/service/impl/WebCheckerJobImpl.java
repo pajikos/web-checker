@@ -52,7 +52,7 @@ public class WebCheckerJobImpl {
 						.processSearch(searchPage);
 				List<SearchResult> onlyNewSearchResults = searchResultProcessor
 						.processCompare(allSearchResults);
-				emailService.sendSearchResults(onlyNewSearchResults);
+				emailService.sendSearchResults(searchPage, onlyNewSearchResults);
 				searchRepoService.saveAllSearchResults(onlyNewSearchResults);
 			} catch (Exception e) {
 				LOG.error("Cannot process page " + searchPage.getUrl()

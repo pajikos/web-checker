@@ -1,6 +1,7 @@
 package com.pavelsklenar.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.mail.MessagingException;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.pavelsklenar.DemoApplication;
+import com.pavelsklenar.domain.EmailAddress;
 import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
 import com.pavelsklenar.service.EmailService;
@@ -31,13 +33,19 @@ public class EmailServiceImplTest {
 	@Test
 	public void test() throws MessagingException {
 		List<SearchResult> listToSend = new ArrayList<SearchResult>();
-		listToSend.add(createTestSearchResult());
-		listToSend.add(createTestSearchResult());
-		emailService.sendSearchResults(listToSend);
+		SearchPage searchPage = createSearchPage();
+		listToSend.add(createTestSearchResult(searchPage));
+		listToSend.add(createTestSearchResult(searchPage));
+		
+		emailService.sendSearchResults(searchPage, listToSend);
 	}
 
-	private SearchResult createTestSearchResult() {
-		SearchPage searchPage = new SearchPage("sreality.cz", "http://www.sreality.cz/hledani/prodej/domy/ceske-budejovice");
+	/**
+	 * Create {@link SearchResult} for testing with defined {@link SearchPage}
+	 * @param searchPage
+	 * @return
+	 */
+	private SearchResult createTestSearchResult(SearchPage searchPage) {
 		SearchResult searchResult = new SearchResult(searchPage);
 		searchResult.setDescription("Včelná, okres České Budějovice");
 		searchResult.setPrice("5 390 000 Kč");
@@ -46,5 +54,17 @@ public class EmailServiceImplTest {
 		searchResult.setUrl("http://www.sreality.cz/detail/prodej/dum/rodinny/vcelna-vcelna-/510021724");
 		return searchResult;
 	}
-
+	
+	/**
+	 * Create {@link SearchPage} for testing
+	 * @return
+	 */
+	private SearchPage createSearchPage() {
+		SearchPage searchPage = new SearchPage("sreality.cz", "http://www.sreality.cz/hledani/prodej/domy/ceske-budejovice");
+		EmailAddress emailAddress = new EmailAddress();
+		emailAddress.setEmailAddress("pavel.sklenar@seznam.cz");
+		emailAddress.setName("MyName");
+		searchPage.setEmailAddresses(Collections.singleton(emailAddress));
+		return searchPage;
+	}
 }

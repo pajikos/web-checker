@@ -18,6 +18,7 @@ package com.pavelsklenar.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -25,6 +26,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class SearchPage implements Serializable {
@@ -65,6 +67,9 @@ public class SearchPage implements Serializable {
 	
 	@Column(nullable=false, columnDefinition="boolean default false")
 	private boolean javascriptEnabled;
+	
+	@ManyToMany
+	private Collection<EmailAddress> emailAddresses;
 	
 	/**
 	 * Comma separated list of classes which should be omitted from search result 
@@ -189,5 +194,17 @@ public class SearchPage implements Serializable {
 
 	public void setOmitClassesInSearchResult(String omitClassesInSearchResult) {
 		this.omitClassesInSearchResult = omitClassesInSearchResult;
+	}
+
+	public Collection<EmailAddress> getEmailAddresses() {
+		return emailAddresses;
+	}
+
+	public void setEmailAddresses(Collection<EmailAddress> emailAddresses) {
+		this.emailAddresses = emailAddresses;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

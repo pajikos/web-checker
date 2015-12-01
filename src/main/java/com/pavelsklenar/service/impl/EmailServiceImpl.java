@@ -7,21 +7,25 @@ import java.util.Locale;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.pavelsklenar.domain.EmailAddress;
+import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
 import com.pavelsklenar.service.EmailService;
 
 @Component
 public class EmailServiceImpl implements EmailService {
+
+	private static final String UTF_8 = "UTF-8";
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(EmailServiceImpl.class);
@@ -32,13 +36,19 @@ public class EmailServiceImpl implements EmailService {
 	@Autowired
 	private TemplateEngine templateEngine;
 
+	@Value("${email.error}")
+	private String errorEmail;
+
+	@Value("${email.from}")
+	private String emailFrom;
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.pavelsklenar.service.impl.EmailService#sendMails(java.util.List)
 	 */
-	public void sendSearchResults(List<SearchResult> listToSend)
-			throws MessagingException {
+	public void sendSearchResults(SearchPage searchPage,
+			List<SearchResult> listToSend) throws MessagingException {
 		if (listToSend == null || listToSend.isEmpty()) {
 			LOG.info("Cannot send emails, it would be empty, no results to send.");
 			return;
@@ -55,7 +65,7 @@ public class EmailServiceImpl implements EmailService {
 		// Prepare message using a Spring helper
 		final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
 		final MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
-				"UTF-8");
+				UTF_8);
 		if (listToSend.size() == 1) {
 			message.setSubject(listToSend.get(0).getTitle() + ", "
 					+ listToSend.get(0).getPrice());
@@ -65,8 +75,16 @@ public class EmailServiceImpl implements EmailService {
 					+ listToSend.get(0).getSearchPage().getName());
 		}
 
-		message.setFrom("sklenar.bol@seznam.cz");
-		message.setTo("sklenar.bol@seznam.cz");
+		message.setFrom(emailFrom);
+		if (searchPage.getEmailAddresses().isEmpty()) {
+			LOG.warn(
+					"SearchPage {} has empty e-mail addresses of recipients, no e-mail will be sent.",
+					searchPage.getName());
+		}
+
+		for (EmailAddress emailAddress : searchPage.getEmailAddresses()) {
+			message.setTo(emailAddress.getEmailAddress());
+		}
 
 		// Create the HTML body using Thymeleaf
 		final String htmlContent = this.templateEngine.process("email", ctx);
@@ -83,9 +101,10 @@ public class EmailServiceImpl implements EmailService {
 	 * Send an email with error
 	 * 
 	 * @param exception
-	 * @throws MessagingException 
+	 * @throws MessagingException
 	 */
-	public void sendExcetionByEmail(Exception exception) throws MessagingException {
+	public void sendExcetionByEmail(Exception exception)
+			throws MessagingException {
 		LOG.info("Trying to send an email with error: {}",
 				exception.getLocalizedMessage());
 		// Prepare the evaluation context
@@ -93,16 +112,16 @@ public class EmailServiceImpl implements EmailService {
 		ctx.setVariable("message", exception.getLocalizedMessage());
 		ctx.setVariable("stackTrace", stackTraceToHtmlString(exception));
 		ctx.setVariable("generatedDate", new Date());
-		
+
 		// Prepare message using a Spring helper
 		final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
 		final MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
-				"UTF-8");
+				UTF_8);
 		message.setSubject("Web-checker exception: "
 				+ exception.getLocalizedMessage());
 
-		message.setFrom("sklenar.bol@seznam.cz");
-		message.setTo("sklenar.bol@seznam.cz");
+		message.setFrom(emailFrom);
+		message.setTo(errorEmail);
 
 		final String htmlContent = this.templateEngine.process("error", ctx);
 		message.setText(htmlContent, true /* isHtml */);
@@ -116,13 +135,13 @@ public class EmailServiceImpl implements EmailService {
 	public void setMailSender(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
 	}
-	
+
 	private String stackTraceToHtmlString(Throwable e) {
-	    StringBuilder sb = new StringBuilder();
-	    for (StackTraceElement element : e.getStackTrace()) {
-	        sb.append(element.toString());
-	        sb.append("<br />");
-	    }
-	    return sb.toString();
+		StringBuilder sb = new StringBuilder();
+		for (StackTraceElement element : e.getStackTrace()) {
+			sb.append(element.toString());
+			sb.append("<br />");
+		}
+		return sb.toString();
 	}
 }
