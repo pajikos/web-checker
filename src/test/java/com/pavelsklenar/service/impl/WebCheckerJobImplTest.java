@@ -77,7 +77,7 @@ public class WebCheckerJobImplTest {
 	 * @throws MessagingException
 	 */
 	@Test
-	public void testFullJobRun2() throws MessagingException,
+	public void testFullJobRun() throws MessagingException,
 			InterruptedException {
 
 		Capture<SearchPage> capturedSearchPage = Capture.newInstance();
