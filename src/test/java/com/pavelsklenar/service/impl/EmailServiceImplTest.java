@@ -24,13 +24,13 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.pavelsklenar.DemoApplication;
+import com.pavelsklenar.TestApplication;
 import com.pavelsklenar.domain.EmailAddress;
 import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DemoApplication.class)
+@SpringApplicationConfiguration(classes = TestApplication.class)
 public class EmailServiceImplTest {
 
 	private static final String RESULT_MAIL_TO = "email@xyz.com";

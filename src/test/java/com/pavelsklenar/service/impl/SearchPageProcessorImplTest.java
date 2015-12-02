@@ -1,5 +1,10 @@
 package com.pavelsklenar.service.impl;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,7 +12,6 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,19 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.pavelsklenar.DemoApplication;
+import com.pavelsklenar.TestApplication;
 import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
 import com.pavelsklenar.service.SearchPageProcessor;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DemoApplication.class)
+@SpringApplicationConfiguration(classes = TestApplication.class)
 public class SearchPageProcessorImplTest {
 
 	@Autowired
