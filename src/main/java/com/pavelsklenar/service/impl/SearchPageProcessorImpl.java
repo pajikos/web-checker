@@ -68,7 +68,7 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 //				Path path = Paths.get("D:/temp", searchPageToProcess.getName() + ".html");
 //				Files.createFile(path);
 //				Files.write(path, driver.getPageSource().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
-				LOG.debug("Page found {}", driver.getPageSource());
+				LOG.trace("Page found {}", driver.getPageSource());
 				List<WebElement> searchResultsElements = driver.findElements(By
 						.xpath(searchPageToProcess.getXpathToListOfResults()));
 				LOG.info("Number of result found: {}",
@@ -83,7 +83,7 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 						continue;
 					}
 					searchResult = new SearchResult(searchPageToProcess);
-					LOG.debug("Trying to parse this element: {}",
+					LOG.trace("Trying to parse this element: {}",
 							webElement.getText());
 
 					searchResult.setPrice(getTextIfExistsFromElement(
