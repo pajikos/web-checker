@@ -1,4 +1,4 @@
-package com.pavelsklenar.service;
+package com.pavelsklenar.repository;
 
 import java.util.List;
 
@@ -10,6 +10,11 @@ import org.springframework.data.repository.Repository;
 import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
 
+/**
+ * Repository for {@link SearchResult}
+ * @author pajik
+ *
+ */
 public interface SearchResultRepository extends Repository<SearchResult, Long>, CrudRepository<SearchResult, Long> {
 
 	public Page<SearchResult> findBySearchPage(SearchPage searchPage, Pageable pageable);

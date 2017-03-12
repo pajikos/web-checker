@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pavelsklenar.service;
+package com.pavelsklenar.repository;
 
 import java.util.List;
 

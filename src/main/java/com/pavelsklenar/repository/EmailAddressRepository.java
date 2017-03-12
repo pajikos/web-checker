@@ -1,4 +1,4 @@
-package com.pavelsklenar.service;
+package com.pavelsklenar.repository;
 
 import org.springframework.data.repository.CrudRepository;
 

@@ -12,28 +12,36 @@ import com.pavelsklenar.domain.SearchResult;
 import com.pavelsklenar.service.SearchRepoService;
 import com.pavelsklenar.service.SearchResultProcessor;
 
+/**
+ * Processor of {@link SearchResult}s
+ * 
+ * @author pajik
+ *
+ */
 @Component
 public class SearchResultProcessorImpl implements SearchResultProcessor {
 
 	SearchRepoService searchRepoService;
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(SearchResultProcessorImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SearchResultProcessorImpl.class);
 
 	@Autowired
 	public SearchResultProcessorImpl(SearchRepoService searchRepoService) {
 		this.searchRepoService = searchRepoService;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.pavelsklenar.service.impl.SearchResultProcessor#processCompare(java.util.List)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.pavelsklenar.service.impl.SearchResultProcessor#processCompare(java.
+	 * util.List)
 	 */
 	public List<SearchResult> processCompare(List<SearchResult> resultsToCompare) {
 		List<SearchResult> newSearchResults = new ArrayList<SearchResult>();
 		for (SearchResult searchResult : resultsToCompare) {
 			LOG.info("Trying to find SearchResult in DB: {}", searchResult);
-			List<SearchResult> findByUrl = searchRepoService
-					.findByUrl(searchResult.getUrl());
+			List<SearchResult> findByUrl = searchRepoService.findByUrl(searchResult.getUrl());
 			for (SearchResult searchResultDB : findByUrl) {
 				LOG.debug("DB contains this SearchResult (matched by URL): {}", searchResultDB);
 			}

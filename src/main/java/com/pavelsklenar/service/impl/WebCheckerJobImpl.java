@@ -19,8 +19,9 @@ import com.pavelsklenar.service.SearchRepoService;
 import com.pavelsklenar.service.SearchResultProcessor;
 
 /**
- * The main job for start a checking of web sites
- * @author pajik
+ * The main job for start a checking of required web sites
+ * 
+ * @author pavel.sklenar
  *
  */
 @ConditionalOnProperty(prefix = "job.webChecker", name = { "run", "cron" })
@@ -39,8 +40,7 @@ public class WebCheckerJobImpl {
 	@Autowired
 	private EmailService emailService;
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(WebCheckerJobImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(WebCheckerJobImpl.class);
 
 	@Scheduled(cron = "${job.webChecker.cron}")
 	public void run() throws MessagingException {
@@ -48,19 +48,16 @@ public class WebCheckerJobImpl {
 		List<SearchPage> allSearchPages = searchRepoService.getAllSearchPages();
 		for (SearchPage searchPage : allSearchPages) {
 			try {
-				List<SearchResult> allSearchResults = searchPageProcessor
-						.processSearch(searchPage);
-				List<SearchResult> onlyNewSearchResults = searchResultProcessor
-						.processCompare(allSearchResults);
+				List<SearchResult> allSearchResults = searchPageProcessor.processSearch(searchPage);
+				List<SearchResult> onlyNewSearchResults = searchResultProcessor.processCompare(allSearchResults);
 				emailService.sendSearchResults(searchPage, onlyNewSearchResults);
 				searchRepoService.saveAllSearchResults(onlyNewSearchResults);
 			} catch (Exception e) {
-				LOG.error("Cannot process page " + searchPage.getUrl()
-						+ " due to the error " + e.getLocalizedMessage(), e);
+				LOG.error("Cannot process page " + searchPage.getUrl() + " due to the error " + e.getLocalizedMessage(),
+						e);
 				emailService.sendExcetionByEmail(e);
 			}
 		}
-
 	}
 
 	public void setEmailService(EmailService emailService) {

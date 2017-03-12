@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.mail.MessagingException;
 import javax.mail.Message.RecipientType;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.junit.Assert;
@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -29,8 +29,14 @@ import com.pavelsklenar.domain.EmailAddress;
 import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
 
+/**
+ * Test class for {@link EmailServiceImpl}
+ * 
+ * @author pajik
+ *
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TestApplication.class)
+@SpringBootTest(classes = TestApplication.class)
 public class EmailServiceImplTest {
 
 	private static final String RESULT_MAIL_TO = "email@xyz.com";
@@ -54,12 +60,10 @@ public class EmailServiceImplTest {
 		listToSend.add(createTestSearchResult(searchPage));
 
 		emailService.sendSearchResults(searchPage, listToSend);
-		
+
 		MimeMessage lastMimeMessage = myJavaMailSender.getLastMimeMessage();
-		Assert.assertEquals(1,
-				lastMimeMessage.getRecipients(RecipientType.TO).length);
-		Assert.assertEquals(RESULT_MAIL_TO,
-				lastMimeMessage.getRecipients(RecipientType.TO)[0].toString());
+		Assert.assertEquals(1, lastMimeMessage.getRecipients(RecipientType.TO).length);
+		Assert.assertEquals(RESULT_MAIL_TO, lastMimeMessage.getRecipients(RecipientType.TO)[0].toString());
 	}
 
 	/**
@@ -72,10 +76,8 @@ public class EmailServiceImplTest {
 		emailAddress.setEmailAddress(RESULT_MAIL_TO);
 		emailAddress.setName("TEST");
 
-		SearchPage searchPage = new SearchPage("sreality",
-				"http://localhost:8089/sreality.html");
-		searchPage
-				.setXpathToListOfResults("/html/body/div[2]/div[1]/div[2]/div/div[4]/div/div/div/div/div[3]/div/div");
+		SearchPage searchPage = new SearchPage("sreality", "http://localhost:8089/sreality.html");
+		searchPage.setXpathToListOfResults("/html/body/div[2]/div[1]/div[2]/div/div[4]/div/div/div/div/div[3]/div/div");
 		searchPage.setXpathToImage("a/span[1]/img");
 		searchPage.setXpathToDescription("div/div/span/span[1]");
 		searchPage.setXpathToUrl("div/div/span/h2/a");
@@ -98,11 +100,9 @@ public class EmailServiceImplTest {
 		SearchResult searchResult = new SearchResult(searchPage);
 		searchResult.setDescription("Včelná, okres České Budějovice");
 		searchResult.setPrice("5 390 000 Kč");
-		searchResult
-				.setImageUrl("http://img.sreality.cz/middle2/dyn/201510/0206/3b/560e1f4b3bd8761813960000");
+		searchResult.setImageUrl("http://img.sreality.cz/middle2/dyn/201510/0206/3b/560e1f4b3bd8761813960000");
 		searchResult.setTitle("Prodej rodinného domu 160 m², pozemek 754 m²");
-		searchResult
-				.setUrl("http://www.sreality.cz/detail/prodej/dum/rodinny/vcelna-vcelna-/510021724");
+		searchResult.setUrl("http://www.sreality.cz/detail/prodej/dum/rodinny/vcelna-vcelna-/510021724");
 		return searchResult;
 	}
 
@@ -115,8 +115,7 @@ public class EmailServiceImplTest {
 		}
 
 		private JavaMailSender mailSender = new JavaMailSenderImpl();
-		private final Logger LOG = LoggerFactory
-				.getLogger(MyJavaMailSender.class);
+		private final Logger LOG = LoggerFactory.getLogger(MyJavaMailSender.class);
 
 		public void send(SimpleMailMessage arg0) throws MailException {
 			// TODO Auto-generated method stub
@@ -132,8 +131,7 @@ public class EmailServiceImplTest {
 			return mailSender.createMimeMessage();
 		}
 
-		public MimeMessage createMimeMessage(InputStream arg0)
-				throws MailException {
+		public MimeMessage createMimeMessage(InputStream arg0) throws MailException {
 			return mailSender.createMimeMessage(arg0);
 		}
 

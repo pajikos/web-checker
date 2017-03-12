@@ -21,7 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -30,17 +30,16 @@ import com.pavelsklenar.TestApplication;
 import com.pavelsklenar.domain.EmailAddress;
 import com.pavelsklenar.domain.SearchPage;
 import com.pavelsklenar.domain.SearchResult;
-import com.pavelsklenar.service.EmailAddressRepository;
+import com.pavelsklenar.repository.EmailAddressRepository;
+import com.pavelsklenar.repository.SearchPageRepository;
 import com.pavelsklenar.service.EmailService;
-import com.pavelsklenar.service.SearchPageRepository;
 
 /**
  * The main integration test for {@link WebCheckerJobImpl}
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TestApplication.class)
-@TestPropertySource(properties = { "job.webChecker.run:true",
-		"job.webChecker.cron=0 59 23 31 12 ?" })
+@SpringBootTest(classes = TestApplication.class)
+@TestPropertySource(properties = { "job.webChecker.run:true", "job.webChecker.cron=0 59 23 31 12 ?" })
 public class WebCheckerJobImplTest {
 
 	@Autowired
@@ -77,13 +76,11 @@ public class WebCheckerJobImplTest {
 	 * @throws MessagingException
 	 */
 	@Test
-	public void testFullJobRun() throws MessagingException,
-			InterruptedException {
+	public void testFullJobRun() throws MessagingException, InterruptedException {
 
 		Capture<SearchPage> capturedSearchPage = Capture.newInstance();
 		Capture<List<SearchResult>> capturedList = Capture.newInstance();
-		emailService.sendSearchResults(EasyMock.capture(capturedSearchPage),
-				EasyMock.capture(capturedList));
+		emailService.sendSearchResults(EasyMock.capture(capturedSearchPage), EasyMock.capture(capturedList));
 
 		EasyMock.replay(emailService);
 		webCheckerJob.run();
@@ -105,10 +102,8 @@ public class WebCheckerJobImplTest {
 
 		emailAddressRepository.save(emailAddress);
 
-		SearchPage searchPage = new SearchPage("sreality",
-				"http://localhost:8089/sreality.html");
-		searchPage
-				.setXpathToListOfResults("/html/body/div[2]/div[1]/div[2]/div/div[4]/div/div/div/div/div[3]/div/div");
+		SearchPage searchPage = new SearchPage("sreality", "http://localhost:8089/sreality.html");
+		searchPage.setXpathToListOfResults("/html/body/div[2]/div[1]/div[2]/div/div[4]/div/div/div/div/div[3]/div/div");
 		searchPage.setXpathToImage("a/span[1]/img");
 		searchPage.setXpathToDescription("div/div/span/span[1]");
 		searchPage.setXpathToUrl("div/div/span/h2/a");
@@ -131,16 +126,8 @@ public class WebCheckerJobImplTest {
 	 */
 	private void createHttpStub(SearchPage searchPage) throws Exception {
 		stubFor(get(urlEqualTo("/" + searchPage.getName() + ".html"))
-				.willReturn(
-						aResponse()
-								.withStatus(200)
-								.withHeader("Content-Type",
-										"text/html; charset=UTF-8")
-								.withBody(
-										readFileFromClassPathAsString(
-												"/pages/"
-														+ searchPage.getName()
-														+ ".html").getBytes())));
+				.willReturn(aResponse().withStatus(200).withHeader("Content-Type", "text/html; charset=UTF-8").withBody(
+						readFileFromClassPathAsString("/pages/" + searchPage.getName() + ".html").getBytes())));
 	}
 
 	/**
@@ -154,8 +141,7 @@ public class WebCheckerJobImplTest {
 	private String readFileFromClassPathAsString(String file) throws Exception {
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new InputStreamReader(this.getClass()
-					.getResourceAsStream(file)));
+			br = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(file)));
 			StringBuilder sb = new StringBuilder();
 			String line;
 			while ((line = br.readLine()) != null) {

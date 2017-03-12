@@ -23,7 +23,7 @@ public class SearchPageProcessorImpl implements SearchPageProcessor {
 	private static final Logger LOG = org.slf4j.LoggerFactory
 			.getLogger(SearchPageProcessorImpl.class);
 
-	@Value("${httpProxy.url:''}")
+	@Value("${httpProxy.url:}")
 	private String httpProxyUrl;
 
 	@Value("${httpProxy.port:3128}")
