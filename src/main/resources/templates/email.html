@@ -3,40 +3,78 @@
 <head>
 <title th:remove="all">Template for HTML email with inline image</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style type="text/css">
+.tg {
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-color: #ccc;
+}
+
+.tg td {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px 5px;
+    border-style: solid;
+    border-width: 0px;
+    overflow: hidden;
+    word-break: normal;
+    border-color: #ccc;
+    color: #333;
+    background-color: #fff;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}
+
+.tg th {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 10px 5px;
+    border-style: solid;
+    border-width: 0px;
+    overflow: hidden;
+    word-break: normal;
+    border-color: #ccc;
+    color: #333;
+    background-color: #f0f0f0;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+}
+
+.tg .tg-031e {
+    text-align: left;
+}
+
+</style>
 </head>
 <body>
-	<p>
-		Nová nemovitost na <a href="example.com" th:href="${searchUrl}"><span
-			th:text="${name}">seznam.cz</span></a>!
-	</p>
-	<table style="margin-top: 10px" th:each="result : ${results}"
-		border="1">
-		<tr>
-			<td>Předmět:</td>
-			<td th:text="${result.title + ', ' + result.price}">Title
-				Example</td>
-		</tr>
-		<tr>
-			<td>Popis:</td>
-			<td th:text="${result.description}">Description Example</td>
-		</tr>
-		<tr>
-			<td>URL:</td>
-			<td th:text="${result.url}">Url Example</td>
-		</tr>
-		<tr>
-			<td colspan="2"><img src="image.png" th:src="${result.imageUrl}" /></td>
-		</tr>
-	</table>
-	<p>
-		<!-- 		<img src="sample.png" th:src="'cid:' + ${imageResourceName}" /> -->
-	</p>
-	<p>
-		Automatically generated at <span
-			th:text="${#dates.format(subscriptionDate)}">28-12-2012</span>
-	</p>
-	<p>
-		Regards, <br /> &emsp; <em>Web Checker</em>
-	</p>
+    <p>
+        Nalezena nová nemovitost na <a href="example.com"
+            th:href="${searchUrl}"><span th:text="${name}">seznam.cz</span></a>!
+    </p>
+    <table class="tg" th:each="result : ${results}">
+        <tr>
+            <th class="tg-031e">Titulek:</th>
+            <th class="tg-031e"><a href="example.com"
+                th:href="${result.url}"><span
+                    th:text="${result.title + ', ' + result.price}">Title</span></a></th>
+        </tr>
+        <tr>
+            <td class="tg-031e">Popis:</td>
+            <td class="tg-031e" th:text="${result.description}">Description
+                Example</td>
+        </tr>
+        <tr>
+            <td class="tg-031e" colspan="2"><img src="image.png"
+                th:src="${result.imageUrl}" /></td>
+        </tr>
+    </table>
+    <p>
+        E-mail vygenerován v <span
+            th:text="${#dates.format(subscriptionDate)}">28-12-2012</span>
+    </p>
+    <p>
+        S pozdravem, <br /> &emsp; <em>Web Checker</em>
+    </p>
 </body>
 </html>
