@@ -12,7 +12,7 @@ import com.pavelsklenar.domain.SearchResult;
 
 /**
  * Repository for {@link SearchResult}
- * @author pajik
+ * @author pavel.sklenar
  *
  */
 public interface SearchResultRepository extends Repository<SearchResult, Long>, CrudRepository<SearchResult, Long> {

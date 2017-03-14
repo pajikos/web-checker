@@ -18,7 +18,7 @@ import com.pavelsklenar.service.SearchRepoService;
 /**
  * Single point of contract service for for manipulating with repositories
  * 
- * @author pajik
+ * @author pavel.sklenar
  *
  */
 @Component

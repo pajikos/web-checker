@@ -17,7 +17,7 @@ import javax.persistence.ManyToMany;
  * This Entity stores info about search page, i.e. URL, xpaths to required
  * elements etc.
  * 
- * @author pajik
+ * @author pavel.sklenar
  * 
  */
 @Entity

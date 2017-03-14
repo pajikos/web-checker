@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 /**
  * Entity to save email addresses within DB
- * @author pajik
+ * @author pavel.sklenar
  *
  */
 @Entity

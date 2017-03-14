@@ -15,7 +15,7 @@ import com.pavelsklenar.service.SearchResultProcessor;
 /**
  * Processor of {@link SearchResult}s
  * 
- * @author pajik
+ * @author pavel.sklenar
  *
  */
 @Component

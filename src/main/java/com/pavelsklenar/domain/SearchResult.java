@@ -16,7 +16,7 @@ import org.springframework.data.annotation.CreatedDate;
  * Entity to save info about search result, i.e. result from searching on
  * {@link SearchPage}
  * 
- * @author pajik
+ * @author pavel.sklenar
  * 
  */
 @Entity
